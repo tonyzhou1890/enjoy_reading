@@ -1,0 +1,32 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.page-container {
+  width: 100%;
+  max-width: 900px;
+  min-height: 100vh;
+  padding: 0;
+  margin: 0 auto;
+  background: seashell;
+}
+
+.no-wrap {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.block-padding {
+  padding: 10px 50px;
+  @media screen and (max-width: 600px) {
+    padding: 10px;
+  }
+}
+
+.ilb {
+  display: inline-block;
+}
