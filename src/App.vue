@@ -1,36 +1,69 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <div>
-      <p>
-        If Element is successfully added to this project, you'll see an
-        <code v-text="'<el-button>'"></code>
-        below
-      </p>
-      <el-button>el-button</el-button>
+  <div id="app" ref="app">
+    <Header />
+    <div class="body">
+      <router-view :key="$route.fullPath" />
     </div>
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Footer />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import { maxWidth, minWidth } from '@/style/variables.less'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 export default {
-  name: 'app',
+  name: 'App',
   components: {
-    HelloWorld
+    Header,
+    Footer
+  },
+  created() {
+    // this.getWidth()
+    window.addEventListener('resize', this.getWidth)
+    this.$store.dispatch('app/getTagList')
+  },
+  mounted() {
+    this.getWidth()
+  },
+  metaInfo() {
+    return {
+      title: this.$store.state.app.metaTitle || '享阅'
+    }
+  },
+  methods: {
+    getWidth() {
+      if (this.$refs.app) {
+        let width = this.$refs.app.getBoundingClientRect().width
+        if (width > Number(maxWidth.split('px')[0])) {
+          width = Number(maxWidth.split('px')[0])
+        }
+        if (width < Number(minWidth.split('px')[0])) {
+          width = Number(minWidth.split('px')[0])
+        }
+        this.$store.commit('app/SET_DATA', { width })
+      }
+    }
   }
 }
 </script>
 
-<style>
+<style lang="less" scoped>
+@import url('~@/style/variables.less');
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  width: 100%;
+  max-width: @maxWidth;
+  min-width: @minWidth;
+  height: 100%;
+  margin: 0 auto;
+  .body {
+    width: 100%;
+    min-height: calc(100% - 210px);
+  }
 }
 </style>

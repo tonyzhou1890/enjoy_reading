@@ -15,10 +15,10 @@ module.exports = {
   assetsDir: 'static',
   lintOnSave: true,
   productionSourceMap: false,
-  devServe: {
+  devServer: {
     port,
     open: true,
-    ovelay: {
+    overlay: {
       warnings: false,
       errors: true
     },

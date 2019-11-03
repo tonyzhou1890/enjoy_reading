@@ -7,6 +7,7 @@ import meta from 'vue-meta'
 import './style/index.less'
 import './icons'
 import './plugins/element.js'
+import './permission' // permission control
 
 Vue.config.productionTip = false
 
