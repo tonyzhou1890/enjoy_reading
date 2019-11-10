@@ -40,7 +40,8 @@
 </template>
 
 <script>
-import { readingInfoUpdate } from '@/api/book'
+import { readingInfoUpdate, readingInfo } from '@/api/book'
+import { getToken } from '@/utils/auth'
 import DefaultCover from '@/components/DefaultCover'
 export default {
   name: 'StoreBook',
@@ -62,12 +63,31 @@ export default {
       storePrefix: this.$store.state.app.storePrefix,
       scoreUnit: this.$store.state.app.scoreUnit,
       readLoading: false,
-      subtractLoading: false
+      subtractLoading: false,
+      readingInfo: {},
+      reader: this.$store.state.app.reader,
+      readerReferer: null, // 阅读器窗口引用
+      readerUrl: ''
     }
   },
   methods: {
     read(book) {
-      console.log(book)
+      this.readLoading = true
+      readingInfo({
+        uuid: book.uuid
+      })
+        .then(res => {
+          this.readingInfo = res.data
+          this.readLoading = false
+          this.readerUrl = `${this.reader}?message=true`
+          this.readerReferer = window.open(this.readerUrl)
+          window.removeEventListener('message', this.handleOnMessage)
+          window.addEventListener('message', this.handleOnMessage)
+        })
+        .catch(e => {
+          this.$message.error(e.errorMsg || '获取阅读信息失败')
+          this.readLoading = false
+        })
     },
     subtractShelf(book) {
       this.subtractLoading = true
@@ -93,6 +113,32 @@ export default {
         return '已读完'
       }
       return `${percent}%`
+    },
+    handleOnMessage(e) {
+      console.log(e)
+      if (e.data && e.data.from === 'reader' && e.data.data === 'ready') {
+        const postData = {
+          key: Date.now(),
+          dest: 'reader',
+          data: {
+            ...this.readingInfo,
+            title: this.readingInfo.name,
+            textPath: this.storePrefix + this.readingInfo.textPath,
+            frontCoverPath: this.readingInfo.frontCoverPath ? this.storePrefix + this.readingInfo.frontCoverPath : '',
+            backCoverPath: this.readingInfo.backCoverPath ? this.storePrefix + this.readingInfo.backCoverPath : ''
+          },
+          request: {
+            method: 'POST',
+            data: {
+              uuid: this.readingInfo.uuid
+            },
+            headers: {
+              token: getToken()
+            }
+          }
+        }
+        this.readerReferer.postMessage(postData, this.readerUrl)
+      }
     }
   }
 }

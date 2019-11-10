@@ -9,3 +9,12 @@ export function readingInfoUpdate(data) {
     data
   })
 }
+
+// 获取书籍阅读信息
+export function readingInfo(data) {
+  return request({
+    url: `${ApiPrefix}/book/readingInfo`,
+    method: 'post',
+    data
+  })
+}

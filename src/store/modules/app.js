@@ -13,6 +13,8 @@ const state = {
   storePrefix: process.env.VUE_APP_STORE,
   // 积分单位
   scoreUnit: '积分',
+  // 阅读器地址
+  reader: process.env.VUE_APP_READER,
   // 页面标题
   metaTitle: ''
 }
