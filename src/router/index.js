@@ -13,14 +13,14 @@ export const constantRoutes = [
       title: '享阅'
     }
   },
-  {
-    path: '/about',
-    name: 'About',
-    component: () => import('@/views/about'),
-    meta: {
-      title: '关于享阅'
-    }
-  },
+  // {
+  //   path: '/about',
+  //   name: 'About',
+  //   component: () => import('@/views/about'),
+  //   meta: {
+  //     title: '关于享阅'
+  //   }
+  // },
   {
     path: '/tag/:tag',
     name: 'Tag',

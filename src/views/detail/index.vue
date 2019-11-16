@@ -3,7 +3,9 @@
     <!-- 面包屑 -->
     <MyBreadcrumb :breadcrumbs="breadcrumb" />
     <!-- 内容 -->
-    <el-row class="detail-content-wrapper">
+    <el-row
+      :loading="loading"
+      class="detail-content-wrapper">
       <!-- 书籍信息 -->
       <el-col class="detail-content">
         <el-row class="detail-content-top">
@@ -73,6 +75,7 @@
                 v-if="detail.has || detail.free"
                 type="primary"
                 @click="handleRead"
+                :loading="readLoading"
               >阅读</el-button>
             </p>
           </el-col>
@@ -102,7 +105,9 @@
 
 <script>
 import { getBookDetail, getBookRecommend } from '@/api/detail'
+import { readingInfo, readingInfoUpdateUrl } from '@/api/book'
 import { shoppingCartAdd, shoppingCartSettle } from '@/api/shoppingCart'
+import { getToken } from '@/utils/auth'
 import { Message, MessageBox } from 'element-ui'
 import MyBreadcrumb from './components/MyBreadcrumb'
 import DefaultCover from '@/components/DefaultCover'
@@ -128,7 +133,13 @@ export default {
       storePrefix: this.$store.state.app.storePrefix, // 静态资源地址
       scoreUnit: this.$store.state.app.scoreUnit, // 积分单位
       buyLoading: false, // 立即购买按钮loading
-      addShoppingCartLoading: false // 加入购物车loading
+      addShoppingCartLoading: false, // 加入购物车loading
+      readingInfo: {},
+      reader: this.$store.state.app.reader,
+      readerReferer: null, // 阅读器窗口引用
+      readerUrl: `${this.$store.state.app.reader}?message=true`,
+      storePrefix: this.$store.state.app.storePrefix,
+      readLoading: false
     }
   },
   computed: {
@@ -140,6 +151,9 @@ export default {
     this.resolvePath()
     this.getBookDetail()
     this.getBookRecommend()
+  },
+  beforeDestroy() {
+    window.removeEventListener('message', this.handleOnMessage)
   },
   methods: {
     // 解析url路径参数
@@ -199,6 +213,10 @@ export default {
             this.breadcrumb = temp
           }
           this.loading = false
+          // 设定页面title
+          this.$store.commit('app/SET_DATA', {
+            metaTitle: `享阅·${this.detail.name}`
+          })
         })
         .catch(e => {
           Message.error(e.errorMsg || '获取书籍详情失败')
@@ -287,7 +305,82 @@ export default {
     },
     // 处理阅读
     handleRead() {
-      console.log('read')
+      this.readingInfo = {
+        uuid: this.detail.uuid,
+        title: this.detail.name,
+        textPath: this.storePrefix + this.detail.textPath,
+        frontCoverPath: this.detail.frontCoverPath ? this.storePrefix + this.detail.frontCoverPath : '',
+        backCoverPath: this.detail.backCoverPath ? this.storePrefix + this.detail.backCoverPath : ''
+      }
+      // 已经登录
+      if (this.userInfo) {
+        // 如果已经有了这本书
+        if (this.detail.has) {
+          this.readingInfo = {
+            ...this.readingInfo,
+            uuid: this.detail.readingInfo.uuid,
+            percent: this.detail.readingInfo.percent,
+            updateTime: this.detail.readingInfo.updateTime
+          }
+          this.handleOpenReader()
+        } else {
+          this.readLoading = true
+          readingInfo({
+            uuid: this.detail.uuid,
+            type: 'book'
+          })
+            .then(res => {
+              this.readingInfo = {
+                ...this.readingInfo,
+                uuid: res.data.uuid,
+                percent: res.data.percent,
+                updateTime: res.data.updateTime
+              }
+              this.readLoading = false
+              this.handleOpenReader()
+              this.getBookDetail()
+            })
+            .catch(e => {
+              this.$message.error(e.errorMsg || '获取阅读信息失败')
+              this.readLoading = false
+            })
+        }
+      } else {
+        // 未登录
+        
+        this.handleOpenReader()
+      }
+    },
+    // 打开阅读器
+    handleOpenReader() {
+      this.readerReferer = window.open(this.readerUrl)
+      window.removeEventListener('message', this.handleOnMessage)
+      window.addEventListener('message', this.handleOnMessage)
+    },
+    // 接收到阅读器的消息
+    handleOnMessage(e) {
+      if (e.data && e.data.from === 'reader' && e.data.data === 'ready') {
+        const postData = {
+          key: Date.now(),
+          dest: 'reader',
+          data: {
+            ...this.readingInfo
+          }
+        }
+        if (this.userInfo) {
+          postData.request = {
+            url: readingInfoUpdateUrl,
+            method: 'POST',
+            data: {
+              uuid: this.readingInfo.uuid
+            },
+            headers: {
+              token: getToken()
+            }
+          }
+        }
+        this.readerReferer.postMessage(postData, this.readerUrl)
+      }
     },
     // 处理未登录
     handleNotLogin() {

@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { readingInfoUpdate, readingInfo } from '@/api/book'
+import { readingInfoUpdate, readingInfoUpdateUrl, readingInfo } from '@/api/book'
 import { getToken } from '@/utils/auth'
 import DefaultCover from '@/components/DefaultCover'
 export default {
@@ -69,6 +69,9 @@ export default {
       readerReferer: null, // 阅读器窗口引用
       readerUrl: ''
     }
+  },
+  beforeDestroy() {
+    window.removeEventListener('message', this.handleOnMessage)
   },
   methods: {
     read(book) {
@@ -115,7 +118,6 @@ export default {
       return `${percent}%`
     },
     handleOnMessage(e) {
-      console.log(e)
       if (e.data && e.data.from === 'reader' && e.data.data === 'ready') {
         const postData = {
           key: Date.now(),
@@ -128,6 +130,7 @@ export default {
             backCoverPath: this.readingInfo.backCoverPath ? this.storePrefix + this.readingInfo.backCoverPath : ''
           },
           request: {
+            url: readingInfoUpdateUrl,
             method: 'POST',
             data: {
               uuid: this.readingInfo.uuid

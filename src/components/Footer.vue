@@ -2,10 +2,10 @@
   <el-row class="footer-wrapper">
     <el-divider />
     <el-row>
-      <router-link :to="{ path: '/about' }">
+      <!-- <router-link :to="{ path: '/about' }">
         关于本站
       </router-link>
-      <el-divider direction="vertical" />
+      <el-divider direction="vertical" /> -->
       <a href="https://tony93.top" target="_blank">
         个人博客
       </a>

@@ -59,6 +59,10 @@ export default {
           Message.error(e.errorMsg || '获取列表失败')
           this.loading = false
         })
+      // 设定页面title
+      this.$store.commit('app/SET_DATA', {
+        metaTitle: `享阅·搜索·${this.keyword}`
+      })
     }
   }
 }
