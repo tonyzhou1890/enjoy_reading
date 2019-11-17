@@ -47,7 +47,7 @@
           class="fl"
           shape="circle"
           :size="70"
-          :src="storePrefix + userInfo.avatar"
+          :src="storePrefix + (userInfo.avatar ? userInfo.avatar : '/images/avatar/default.jpg')"
         />
       </router-link>
       <router-link
