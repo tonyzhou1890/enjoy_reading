@@ -4,7 +4,7 @@
   >{{ text }}</el-row>
 </template>
 
-<script lang="ts">
+<script>
 export default {
   name: 'Empty',
   props: {

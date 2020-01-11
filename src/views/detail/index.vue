@@ -5,7 +5,8 @@
     <!-- 内容 -->
     <el-row
       :loading="loading"
-      class="detail-content-wrapper">
+      class="detail-content-wrapper"
+    >
       <!-- 书籍信息 -->
       <el-col class="detail-content">
         <el-row class="detail-content-top">
@@ -34,11 +35,11 @@
             <p>
               <span
                 class="score"
-              >{{ detail.free ? '免费' : detail.discount ? detail.discountScore + scoreUnit : detail.score + scoreUnit }}</span>
+              >{{ detail.free ? '免费' : detail.discount ? `${detail.discountScore}${scoreUnit}` : `${detail.score}${scoreUnit}` }}</span>
               <span
                 v-if="!(detail.free || !detail.discount)"
                 class="old-score"
-              >{{ detail.score + scoreUnit }}</span>
+              >{{ detail.score }}{{ scoreUnit }}</span>
             </p>
             <p>标签：
               <span
@@ -74,8 +75,8 @@
               <el-button
                 v-if="detail.has || detail.free"
                 type="primary"
-                @click="handleRead"
                 :loading="readLoading"
+                @click="handleRead"
               >阅读</el-button>
             </p>
           </el-col>
@@ -138,7 +139,6 @@ export default {
       reader: this.$store.state.app.reader,
       readerReferer: null, // 阅读器窗口引用
       readerUrl: `${this.$store.state.app.reader}?message=true`,
-      storePrefix: this.$store.state.app.storePrefix,
       readLoading: false
     }
   },
@@ -347,7 +347,7 @@ export default {
         }
       } else {
         // 未登录
-        
+
         this.handleOpenReader()
       }
     },
