@@ -112,10 +112,11 @@ export default {
       if (!percent) {
         return '未开始'
       }
-      if (percent >= 100) {
+      const temp = percent.toFixed(2)
+      if (temp >= 100) {
         return '已读完'
       }
-      return `${percent}%`
+      return `${temp}%`
     },
     handleOnMessage(e) {
       if (e.data && e.data.from === 'reader' && e.data.data === 'ready') {

@@ -34,7 +34,7 @@
       <!-- 是否免费 -->
       <el-form-item label="是否免费">
         <el-row
-          v-text="item.free === 0 ? '免费' : item.free === 1 ? '收费' : ''"
+          v-text="item.free === 0 ? '收费' : item.free === 1 ? '免费' : ''"
         />
       </el-form-item>
       <!-- 积分 -->

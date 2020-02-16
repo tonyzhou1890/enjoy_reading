@@ -128,7 +128,7 @@ export default {
     this.getScoreRecord()
   },
   methods: {
-    // 获取书库书籍列表
+    // 获取积分记录列表
     getScoreRecord(params = {}) {
       this.loading = true
       getScoreRecord({
@@ -146,7 +146,7 @@ export default {
           this.searchParams.filter = params.filter === undefined ? this.searchParams.filter : params.filter
         })
         .catch(e => {
-          this.$message.error(e.errorMsg || '获取书籍列表失败')
+          this.$message.error(e.errorMsg || '获取积分记录失败')
           this.loading = false
         })
     },
