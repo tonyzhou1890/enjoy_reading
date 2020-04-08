@@ -27,3 +27,12 @@ export function spaceBookDelete(data) {
     data
   })
 }
+
+// space book use
+export function spaceBookUse(data) {
+  return request({
+    url: `${ApiPrefix}/space/book/use`,
+    method: 'post',
+    data
+  })
+}

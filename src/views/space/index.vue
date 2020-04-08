@@ -88,7 +88,7 @@
               label="时间"
             />
             <el-table-column
-              width="220px"
+              width="240px"
             >
               <!-- header -->
               <template slot="header">
@@ -113,10 +113,19 @@
                 >编辑</el-button>
                 <!-- delete -->
                 <el-button
+                  v-if="!scope.row.status"
                   size="mini"
                   type="danger"
                   @click="handleDelete(scope.$index, scope.row)"
                 >{{ scope.row.position === 1 ? '删除' : '禁用' }}</el-button>
+                <!-- edit -->
+                <el-button
+                  v-else
+                  size="mini"
+                  type="success"
+                  :loading="useItem.loading && useItem.rowIndex === scope.$index"
+                  @click="handleUse(scope.$index, scope.row)"
+                >启用</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -158,7 +167,7 @@
 </template>
 
 <script>
-import { getSpaceBookList, spaceBookCreateOrUpdate, spaceBookDelete } from '@/api/space'
+import { getSpaceBookList, spaceBookCreateOrUpdate, spaceBookDelete, spaceBookUse } from '@/api/space'
 import Sidebar from '@/components/Sidebar'
 import ThinDivider from '@/components/ThinDivider'
 import Add from './components/add'
@@ -214,6 +223,11 @@ export default {
       viewItem: {
         visible: false,
         title: '查看'
+      },
+      // 启用
+      useItem: {
+        loading: false,
+        rowIndex: 0
       }
     }
   },
@@ -416,6 +430,26 @@ export default {
     // 取消查看
     cancelView() {
       this.viewItem.visible = false
+    },
+    // 启用书籍
+    handleUse(rowIndex, row) {
+      this.useItem = {
+        rowIndex,
+        loading: true
+      }
+      spaceBookUse({
+        uuid: row.uuid
+      })
+        .then(res => {
+          this.useItem.loading = false
+          this.$message.success('操作成功')
+          this.getSpaceBookList()
+        })
+        .catch(e => {
+          console.log(e)
+          this.useItem.loading = false
+          this.$message.error(e.errorMsg || '操作失败')
+        })
     }
   }
 }
